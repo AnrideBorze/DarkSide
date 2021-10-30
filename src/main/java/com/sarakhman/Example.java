@@ -13,6 +13,22 @@ public class Example {
         System.out.println(name + surname + USERNAME);
     }
 
+    public void setI(int i) {
+        this.i = i;
+    }
+
+    public void setB(int b) {
+        this.b = b;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
     public int getI() {
         return i;
     }
@@ -35,5 +51,12 @@ public class Example {
 
     public String getUSERNAME() {
         return USERNAME;
+    }
+
+    private final void toDoNothing(){
+
+    }
+    private final void printHello(){
+        System.out.println("Hello");
     }
 }
