@@ -53,8 +53,8 @@ public class Example {
         return USERNAME;
     }
 
-    private final void toDoNothing(){
-
+    private final void makeIBigger(){
+i++;
     }
     private final void printHello(){
         System.out.println("Hello");
