@@ -9,8 +9,7 @@ public class Example {
     private final String USERNAME = "username";
 
     Example(){
-        System.out.println(i + b + C);
-        System.out.println(name + surname + USERNAME);
+
     }
 
     public void setI(int i) {
@@ -53,10 +52,10 @@ public class Example {
         return USERNAME;
     }
 
-    private final void makeIBigger(){
+    public final void makeIBigger(){
 i++;
     }
-    private final void printHello(){
+    private  void printHello(){
         System.out.println("Hello");
     }
 }

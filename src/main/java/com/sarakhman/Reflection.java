@@ -8,9 +8,23 @@ package com.sarakhman;
 //        Метод принимает объект и меняет всего его приватные поля на их нулевые значение (null, 0, false etc)+
 
 import java.lang.reflect.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 
 public class Reflection {
+    public static void main(String[] args) {
+
+
+
+
+    }
+
+
+
+
+
     Reflection(){
         System.out.println("Reflection!");
     }
@@ -33,7 +47,7 @@ public class Reflection {
     object = Object.class;
     Method[] allMethods = object.getClass().getDeclaredMethods();
         for (Method allMethod : allMethods) {
-            if(Arrays.toString(allMethod.getParameterTypes()).equals("[]")) {
+            if(Arrays.toString(allMethod.getParameterTypes()).equals("")) {
                 allMethod.setAccessible(true);
                 allMethod.invoke(object);
             }
@@ -41,68 +55,89 @@ public class Reflection {
     }
 
     public void printSignaturesAllFinalMethods(Object object){
-        Method[] finalMethod = object.getClass().getDeclaredMethods();
-        for (Method method : finalMethod) {
-            if(Modifier.isFinal(method.getModifiers())){
-                System.out.println(method);
-            }
+        List<String> forPrint = getAllSignaturesFinalMethods(object);
+
+        for (String s : forPrint) {
+            System.out.println(s);
         }
 
     }
 
     public void printAllNotPublicMethods(Class clazz){
-    Object object = createObjectClass(clazz);
-        Method[] finalMethod = object.getClass().getDeclaredMethods();
-        for (Method method : finalMethod) {
-            if(!Modifier.isPublic(method.getModifiers())){
-                System.out.println(method);
-            }
+        List<String> forPrint = getAllNotPublicMethods(clazz);
+        for (String s : forPrint) {
+            System.out.println(s);
         }
     }
 
     public void printAllInterfacesAndParents(Class clazz){
-    Class[] allClasses = clazz.getClasses();
-    Class[] allInterfaces = clazz.getInterfaces();
-        for (Class allClass : allClasses) {
-            System.out.println(allClass);
+        List<String> forPrint = getAllInterfacesAndParents(clazz);
+        for (String s : forPrint) {
+            System.out.println(s);
         }
-        for (Class allInterface : allInterfaces) {
-            System.out.println(allInterface);
-        }
+
     }
-    public void changesAllPrivateFieldsOnTheirNullMeanings(Object object){
+    public void changesAllPrivateFieldsOnTheirNullMeanings(Object object) throws IllegalAccessException {
         Field[] allFields = object.getClass().getDeclaredFields();
         for (Field allField : allFields) {
-            allField.setAccessible(true);
-            object = allField.getClass().getSimpleName();
-            Object objectName = allField.getClass().getName();
-            if(object.equals("boolean")){
-                objectName = false;
-            }
-            else if(object.equals("int")){
-                objectName = 0;
-            }
-            else if(object.equals("double")){
-                objectName = 0.0;
-            }
-            else if(object.equals("float")){
-                objectName = 0.0;
-            }
-            else if(object.equals("byte")){
-                objectName = 0;
-            }
-            else if(object.equals("short")){
-                objectName = 0;
-            }
-            else if(object.equals("long")){
-                objectName = 0;
-            }
-            else {
-                objectName = null;
-            }
+           if(Modifier.isPrivate(allField.getModifiers())){
+                allField.setAccessible(true);
+                Object objectType = allField.getType();
+                if(objectType==boolean.class){
+                    allField.set(object,(Object)false);
+                }
+                else if(objectType==int.class||objectType==byte.class||objectType==short.class||objectType==long.class){
+                    allField.set(object,(Object)0);
+                }
+                else if(objectType==double.class||objectType==float.class){
+                    allField.set(object,(Object)0.0);
+                }
+                else {
+                    allField.set(object,(Object)null);
+                }
 
+            }
         }
     }
 
+    public List<String> getAllNotPublicMethods(Class clazz){
+        List<String> result = new ArrayList();
+
+        Object object = createObjectClass(clazz);
+        Method[] finalMethod = object.getClass().getDeclaredMethods();
+        for (Method method : finalMethod) {
+            if(!Modifier.isPublic(method.getModifiers())){
+                result.add(method.toString());
+            }
+        }
+
+
+        return result;
+    }
+    public List<String> getAllSignaturesFinalMethods(Object object){
+        List<String> result = new ArrayList();
+        Method[] finalMethod = object.getClass().getDeclaredMethods();
+        for (Method method : finalMethod) {
+            if(Modifier.isFinal(method.getModifiers())){
+                result.add(method.toString())   ;
+            }
+        }
+        return result;
+    }
+
+    public List<String> getAllInterfacesAndParents(Class clazz) {
+        List<String> result = new ArrayList();
+
+        Class[] allClasses = clazz.getClasses();
+        Class[] allInterfaces = clazz.getInterfaces();
+
+        for (Class allClass : allClasses) {
+            result.add(allClass.toString());
+        }
+        for (Class allInterface : allInterfaces) {
+            result.add(allInterface.toString());
+        }
+        return result;
+    }
 
 }

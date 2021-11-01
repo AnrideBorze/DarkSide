@@ -12,9 +12,14 @@ package com.sarakhman;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
@@ -27,42 +32,76 @@ public class TestReflection {
     public void testCreateObjectClassCreateObject(){
         Reflection reflection = new Reflection();
         Object object = reflection.createObjectClass(Example.class);
-        assertFalse(object.equals(null));
+        assertNotNull(object);
+        assertEquals(Example.class,object.getClass());
+
+
     }
 
     @Test
-    public void testCallAllMethodsWithoutParametersWorkCorrectly() throws InvocationTargetException, IllegalAccessException {
+    public void testCallAllMethodsWithoutParametersWorkCorrectly() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         Reflection reflection = new Reflection();
 
         Object object = reflection.createObjectClass(Example.class);
-        Example example = (Example) object;
         reflection.callAllMethodsWithoutParameters(object);
-        assertEquals(2,example.getI());
+        Field field = object.getClass().getField("i");
+        field.setAccessible(true);
+        assertEquals(1,field.get(object));
     }
 
     @Test
-    public void testPrintSignaturesAllFinalMethodsWorkCorrectly(){
+    public void testGetSignaturesAllFinalMethodsWorkCorrectly(){
         Reflection reflection = new Reflection();
         Object object = reflection.createObjectClass(Example.class);
-        reflection.printSignaturesAllFinalMethods(object);
+        List<String> actual = reflection.getAllSignaturesFinalMethods(object);
+        List<String> expected = new ArrayList<>();
+        expected.add("public final void com.sarakhman.Example.makeIBigger()");
+        assertEquals(expected,actual);
 
     }
 
     @Test
-    public void testPrintAllNotPublicMethodsWorkCorrectly(){
+    public void testAllNotPublicMethodsWorkCorrectly(){
         Reflection reflection = new Reflection();
-        reflection.printAllNotPublicMethods(Example.class);
+        List<String> actual = reflection.getAllNotPublicMethods(Example.class);
+        List<String> expected = new ArrayList<>();
+        expected.add("private void com.sarakhman.Example.printHello()");
+        assertEquals(expected,actual);
+
     }
 
     @Test
-    public void testPrintAllInterfacesAndParentsWorkCorrectly(){
+    public void testAllInterfacesAndParentsWorkCorrectly(){
         Reflection reflection = new Reflection();
-        reflection.printAllInterfacesAndParents(Example.class);
+        List<String> actual = reflection.getAllInterfacesAndParents(Example.class);
+        List<String> expected = new ArrayList<>();
+        assertEquals(expected,actual);
+
     }
 
     @Test
-    public void testChangesAllPrivateFieldsOnTheirNullMeaningsWorkCorrectly(){
+    public void testChangesAllPrivateFieldsOnTheirNullMeaningsWorkCorrectly() throws IllegalAccessException {
         Reflection reflection = new Reflection();
         reflection.changesAllPrivateFieldsOnTheirNullMeanings(reflection.createObjectClass(Example.class));
+        Object object = reflection.createObjectClass(Example.class);
+        reflection.changesAllPrivateFieldsOnTheirNullMeanings(object);
+        Field[] field = object.getClass().getDeclaredFields();
+        for (Field field1 : field) {
+            if (Modifier.isPrivate(field1.getModifiers())) {
+                Object fieldName = field1.getType();
+                field1.setAccessible(true);
+                if (fieldName == boolean.class) {
+                    assertEquals(false, field1.get(object));
+                } else if (fieldName == int.class || fieldName == byte.class || fieldName == short.class || fieldName == long.class) {
+                    assertEquals(0, field1.get(object));
+
+                } else if (fieldName == double.class || fieldName == float.class) {
+                    assertEquals(0.0, field1.get(object));
+
+                } else {
+                    assertEquals(null, field1.get(object));
+                }
+            }
+        }
     }
 }
